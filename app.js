@@ -1,5 +1,8 @@
 const express = require('express');
+const passport = require('passport');
 const port = '3000';
+const session = require('express-session');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -22,5 +25,12 @@ app.get('/', (req,res) => {
 })
 
 const Auth = require('./features/auth/auth.routes');
+
+app.use(bodyParser.json())
+app.use(session({
+    secret: 'thesecret',
+    saveUninitialized: false,
+    resave: false
+}))
 
 app.use('/auth', Auth);
