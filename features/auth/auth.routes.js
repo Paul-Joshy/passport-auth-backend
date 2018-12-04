@@ -20,7 +20,13 @@ router.post('/signup', validateBody(schemas.authSchema), (req, res, next) => {
 });
 
 router.route('/signin')
-  .post(validateBody(schemas.authSchema), passportSignIn, (req, res, next) => AuthCtrl.signin(req, res, next));
+.post(validateBody(schemas.authSchema), passportSignIn, (req, res, next) => AuthCtrl.signin(req, res, next));
+
+router.route('/oauth/google')
+.post(passport.authenticate('googleToken', { session: false }), (req, res, next) => AuthCtrl.signin(req, res, next));
+
+router.route('/oauth/facebook')
+.post(passport.authenticate('facebookToken', { session: false }), (req, res, next) => AuthCtrl.signin(req, res, next));
 
 
 module.exports = router;
