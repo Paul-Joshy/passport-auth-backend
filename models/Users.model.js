@@ -1,28 +1,73 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require('bcryptjs');
+const Schema = mongoose.Schema;
 
-const UserSchema = new mongoose.Schema({
-    'email': {
-        type: String,
-        required: true
+// Create a schema
+const userSchema = new Schema({
+  method: {
+    type: String,
+    enum: ['local', 'google', 'facebook'],
+    required: true
+  },
+  local: {
+    email: {
+      type: String,
+      lowercase: true
     },
-    'password': {
-        type: String
+    password: { 
+      type: String
     }
+  },
+  google: {
+    id: {
+      type: String
+    },
+    email: {
+      type: String,
+      lowercase: true
+    }
+  },
+  facebook: {
+    id: {
+      type: String
+    },
+    email: {
+      type: String,
+      lowercase: true
+    }
+  }
 });
 
-UserSchema.methods.hashPassword = (password) => {
-    const passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-    return passwordHash;
+userSchema.pre('save', async function(next) {
+  try {
+    console.log('entered');
+    if (this.method !== 'local') {
+      next();
+    }
+
+    // Generate a salt
+    const salt = await bcrypt.genSalt(10);
+    // Generate a password hash (salt + hash)
+    const passwordHash = await bcrypt.hash(this.local.password, salt);
+    // Re-assign hashed version over original, plain text password
+    this.local.password = passwordHash;
+    console.log('exited');
+    next();
+  } catch(error) {
+    next(error);
+  }
+});
+
+userSchema.methods.isValidPassword = async function(newPassword) {
+  try {
+    return await bcrypt.compare(newPassword, this.local.password);
+  } catch(error) {
+    throw new Error(error);
+  }
 }
 
-UserSchema.methods.comparePassword = (password, hash) => {
-    return bcrypt.compareSync(password, hash)
-}
+// Create a model
+const UserModel = mongoose.model('user', userSchema);
 
-const UserModel = mongoose.model('users', UserSchema)
-
-module.exports = {
-    UserModel,
-    UserSchema
-};
+// Export the model
+module.exports = UserModel;

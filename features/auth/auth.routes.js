@@ -1,6 +1,10 @@
 const Router = require('express').Router;
-const UserModel = require('../../models/Users.model').UserModel;
 const to = require('await-to-js').to;
+const AuthCtrl = require('./auth.controller');
+const { validateBody, schemas } = require('../../helpers/routeHelpers');
+const passport = require('passport');
+const passportConf = require('../../services/passport');
+const passportSignIn = passport.authenticate('local', { session: false });
 
 const router = new Router();
 
@@ -11,46 +15,12 @@ router.get('/', (req, res) => {
     })
 })
 
-router.post('/signup', async (req, res) => {
-    console.log('sdf');
-    const [err, user] = await to(UserModel.findOne({email: req.body.email}));
-    if(err){
-        req.status(500).json(err);
-    }
-    if(user){
-        res.status(500).json({
-            success: false,
-            message: "User already Exists"
-        });   1
-    }
-    else{
-        const newUser = new UserModel();
-        newUser.email = req.body.email;
-        newUser.password = newUser.hashPassword(req.body.password);
-        newUser.save((err, data) => {
-            console.log('sdf');
-            if(err)
-                return res.status(500).json(err);
-            else{
-                return res.status(200).json(data);
-            }
-        })
-        // [err, user] = await to(newUser.save());
-        // if(err)
-        //     return res.status(500).json(err);
-        // else
-        //     return res.status(200).json({
-        //         success: true,
-        //         userDetails: user
-        //     })
-        // const newUser = new UserModel({
-        //     email: req.body.email
-        // })
-    }
+router.post('/signup', validateBody(schemas.authSchema), (req, res, next) => {
+    AuthCtrl.signup(req, res, next)
 });
 
-router.post('/login', (req, res) => {
+router.route('/signin')
+  .post(validateBody(schemas.authSchema), passportSignIn, (req, res, next) => AuthCtrl.signin(req, res, next));
 
-});
 
 module.exports = router;

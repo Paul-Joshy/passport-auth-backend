@@ -1,36 +1,29 @@
 const express = require('express');
-const passport = require('passport');
-const port = '3000';
-const session = require('express-session');
+const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+mongoose.Promise = global.Promise;
+if (process.env.NODE_ENV === 'test') {
+  mongoose.connect('mongodb://localhost/APIAuthenticationTEST', { useMongoClient: true });
+} else {
+  mongoose.connect('mongodb://localhost/APIAuthentication', { useMongoClient: true });
+}
 
 const app = express();
+app.use(cors());
 
-app.listen(port, () => console.log(`Server listening on port ${port}!`))
+// Middlewares moved morgan into if for clear tests
+if (!process.env.NODE_ENV === 'test') {
+  app.use(morgan('dev'));
+}
 
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+app.use(bodyParser.json());
 
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-    console.log("Database Connected");
-  // we're connected!
-});
+const Auth = require('./features/auth/auth.routes.js');
 
-// const router = app.router();
-
-app.get('/', (req,res) => {
-    res.send('App router works!');
-})
-
-const Auth = require('./features/auth/auth.routes');
-
-app.use(bodyParser.json())
-app.use(session({
-    secret: 'thesecret',
-    saveUninitialized: false,
-    resave: false
-}))
-
+// Routes
 app.use('/auth', Auth);
+
+module.exports = app;
