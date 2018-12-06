@@ -35,6 +35,11 @@ const userSchema = new Schema({
       type: String,
       lowercase: true
     }
+  },
+  is_deleted: {
+    type: Boolean,
+    required: true,
+    default: false
   }
 });
 

@@ -59,5 +59,6 @@ module.exports = {
     getUserDetails,
     unlinkFacebook,
     unlinkGoogle,
-    updateUserEmail
+    updateUserEmail,
+    deleteAccount
 }

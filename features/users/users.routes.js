@@ -10,5 +10,6 @@ const passportConfig = require('../../services/passport');
 router.route('/').get(UserCtrl.getUserDetails);
 router.route('/facebook/unlink').get(UserCtrl.unlinkFacebook);
 router.route('/google/unlink').get(UserCtrl.unlinkGoogle)
+router.route('/delete').get(UserCtrl.deleteAccount)
 
 module.exports = router;
