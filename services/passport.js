@@ -6,6 +6,7 @@ const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const FacebookTokenStrategy = require('passport-facebook-token');
 const config = require('../config');
 const User = require('../models/Users.model');
+const CustomUser = require('../features/users/users.model');
 
 // JSON WEB TOKENS STRATEGY
 passport.use(new JwtStrategy({
@@ -39,21 +40,29 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
     console.log('accessToken', accessToken);
     console.log('refreshToken', refreshToken);
 
-    const existingUser = await User.findOne({ "google.id": profile.id });
-    if (existingUser) {
-      return done(null, existingUser);
-    }
-
-    const newUser = new User({
+    CustomUser.createOrUpdateByEmail(profile.emails[0].value, {
       method: 'google',
       google: {
         id: profile.id,
         email: profile.emails[0].value
       }
-    });
+    }, done)
 
-    await newUser.save();
-    done(null, newUser);
+    // const existingUser = await User.findOne({ "google.id": profile.id });
+    // if (existingUser) {
+    //   return done(null, existingUser);
+    // }
+
+    // const newUser = new User({
+    //   method: 'google',
+    //   google: {
+    //     id: profile.id,
+    //     email: profile.emails[0].value
+    //   }
+    // });
+
+    // await newUser.save();
+    // done(null, newUser);
   } catch(error) {
     done(error, false, error.message);
   }
@@ -67,22 +76,30 @@ passport.use('facebookToken', new FacebookTokenStrategy({
     console.log('profile', profile);
     console.log('accessToken', accessToken);
     console.log('refreshToken', refreshToken);
-    
-    const existingUser = await User.findOne({ "facebook.id": profile.id });
-    if (existingUser) {
-      return done(null, existingUser);
-    }
 
-    const newUser = new User({
+    CustomUser.createOrUpdateByEmail(profile.emails[0].value, {
       method: 'facebook',
       facebook: {
         id: profile.id,
         email: profile.emails[0].value
       }
-    });
+    }, done)
+    
+    // const existingUser = await User.findOne({ "facebook.id": profile.id });
+    // if (existingUser) {
+    //   return done(null, existingUser);
+    // }
 
-    await newUser.save();
-    done(null, newUser);
+    // const newUser = new User({
+    //   method: 'facebook',
+    //   facebook: {
+    //     id: profile.id,
+    //     email: profile.emails[0].value
+    //   }
+    // });
+
+    // await newUser.save();
+    // done(null, newUser);
   } catch(error) {
     done(error, false, error.message);
   }

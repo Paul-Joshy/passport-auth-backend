@@ -9,7 +9,7 @@ const passportSignIn = passport.authenticate('local', { session: false });
 const router = new Router();
 
 router.get('/', (req, res) => {
-    return res.json({
+return res.json({
         success: true,
         body: []
     })

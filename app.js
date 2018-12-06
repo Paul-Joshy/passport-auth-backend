@@ -3,6 +3,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const passport = require('passport');
+const passportConfig = require('./services/passport')
 
 mongoose.Promise = global.Promise;
 if (process.env.NODE_ENV === 'test') {
@@ -22,8 +24,10 @@ if (!process.env.NODE_ENV === 'test') {
 app.use(bodyParser.json());
 
 const Auth = require('./features/auth/auth.routes.js');
+const Users = require('./features/users/users.routes');
 
 // Routes
 app.use('/auth', Auth);
+app.use('/user', passport.authenticate('jwt', { session: false }), Users)
 
 module.exports = app;
