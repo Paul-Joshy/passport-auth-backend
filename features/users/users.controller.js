@@ -26,7 +26,7 @@ const unlinkFacebook = async(req, res) => {
 const unlinkGoogle = async(req, res) => {
     if(req.user){
         if(req.user.method === 'mixed'){
-            docs = await UserModel.findByIdAndUpdate(req.user.id, {facebook: {}});
+            docs = await UserModel.findByIdAndUpdate(req.user.id, {google: {}});
             if(docs)
                 return res.status(200).json(docs)
         }
