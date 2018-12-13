@@ -25,9 +25,12 @@ app.use(bodyParser.json());
 
 const Auth = require('./features/auth/auth.routes.js');
 const Users = require('./features/users/users.routes');
+const Transactions = require('./features/transactions/transations.routes');
 
 // Routes
 app.use('/auth', Auth);
 app.use('/user', passport.authenticate('jwt', { session: false }), Users)
+app.use('/transaction', passport.authenticate('jwt', { session: false }), Transactions);
+// app.use('/transaction', Transactions);
 
 module.exports = app;
